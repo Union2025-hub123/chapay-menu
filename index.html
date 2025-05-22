@@ -18,6 +18,21 @@
       font-size: 22px;
       text-align: center;
     }
+    .filters {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+    }
+    .filters button {
+      padding: 6px 12px;
+      background-color: #8b0000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
     .container {
       padding: 16px;
     }
@@ -47,8 +62,7 @@
       color: #444;
       font-weight: bold;
     }
-
-    #sendBtn {
+    #viewCart {
       margin: 20px auto;
       display: block;
       padding: 12px 24px;
@@ -59,7 +73,6 @@
       border-radius: 6px;
       cursor: pointer;
     }
-
     .modal {
       display: none;
       position: fixed;
@@ -72,7 +85,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .modal-content {
       background-color: white;
       padding: 20px;
@@ -82,20 +94,12 @@
       text-align: center;
       position: relative;
     }
-
     .modal img {
       max-width: 100%;
       border-radius: 8px;
     }
-
-    .modal h3 {
-      margin: 10px 0 5px;
-    }
-
-    .modal p {
-      color: #444;
-    }
-
+    .modal h3 { margin: 10px 0 5px; }
+    .modal p { color: #444; }
     .close {
       position: absolute;
       top: 10px;
@@ -103,98 +107,150 @@
       font-size: 22px;
       cursor: pointer;
     }
-
-    .add-btn {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background-color: #8b0000;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
+    .qty-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .qty-controls button {
+      padding: 6px 10px;
+      font-size: 18px;
+    }
+    .cart-list {
+      text-align: left;
+      margin-top: 10px;
+    }
+    .cart-list p {
+      margin: 4px 0;
     }
   </style>
 </head>
 <body>
-  <header>🍲 Ресторан «Чапай» — Фронтовое меню</header>
+  <header>🍲 Ресторан «Чапай» — Меню</header>
+  <div class="filters">
+    <button onclick="filterMenu('Все')">Все</button>
+    <button onclick="filterMenu('Супы')">Супы</button>
+    <button onclick="filterMenu('Горячее')">Горячее</button>
+    <button onclick="filterMenu('Напитки')">Напитки</button>
+  </div>
   <div class="container">
     <div class="menu-items" id="menu"></div>
-    <button id="sendBtn">✅ Оформить заказ</button>
+    <button id="viewCart">🛒 Посмотреть корзину</button>
   </div>
 
-  <!-- Модалка -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <img id="modalImg" src="" />
       <h3 id="modalTitle"></h3>
       <p id="modalPrice"></p>
+      <div class="qty-controls">
+        <button onclick="adjustQty(-1)">➖</button>
+        <span id="modalQty">1</span>
+        <button onclick="adjustQty(1)">➕</button>
+      </div>
       <button class="add-btn" onclick="addToCart()">➕ В корзину</button>
+    </div>
+  </div>
+
+  <div id="cartModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCart()">&times;</span>
+      <h3>Ваш заказ:</h3>
+      <div id="cartList" class="cart-list"></div>
+      <p id="cartTotal"></p>
+      <button class="add-btn" onclick="sendCart()">✅ Оформить</button>
+      <button class="add-btn" onclick="clearCart()">🗑 Очистить</button>
     </div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-
     const cart = [];
     let currentItem = {};
+    let currentQty = 1;
 
     const menuData = [
-      { title: "Кура «с передовой»", price: 450, img: "photos/1.jpg" },
-      { title: "Похлёбка от Василия Иваныча", price: 180, img: "photos/2.jpg" },
-      { title: "Картошка по-окопному", price: 190, img: "photos/3.jpg" },
-      { title: "Сало «на привале»", price: 160, img: "photos/4.jpg" },
-      { title: "Биоштекс «штабной»", price: 480, img: "photos/5.jpg" },
-      { title: "Щи «Дух Победы»", price: 230, img: "photos/6.jpg" },
-      { title: "Окопные соленья", price: 140, img: "photos/7.jpg" },
-      { title: "Шпроты в дозоре", price: 150, img: "photos/8.jpg" },
-      { title: "Рёбра «на броне»", price: 490, img: "photos/9.jpg" },
-      { title: "Пельмени «от разведки»", price: 330, img: "photos/10.jpg" },
-      { title: "Кисель «Комиссарский»", price: 120, img: "photos/11.jpg" },
-      { title: "Гречневик с мёдом", price: 140, img: "photos/12.jpg" },
-      { title: "Чай «Кипяток из котелка»", price: 80, img: "photos/13.jpg" },
-      { title: "Компот «Третий фронт»", price: 90, img: "photos/14.jpg" },
-      { title: "Яйца «по-генеральски»", price: 160, img: "photos/15.jpg" },
+      { title: "Кура «с передовой»", price: 450, img: "photos/1.jpg", category: "Горячее" },
+      { title: "Щи «Дух Победы»", price: 230, img: "photos/6.jpg", category: "Супы" },
+      { title: "Компот «Третий фронт»", price: 90, img: "photos/14.jpg", category: "Напитки" },
     ];
 
-    const menuContainer = document.getElementById("menu");
-    menuData.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `
-        <img src="${item.img}" alt="${item.title}">
-        <h3>${item.title}</h3>
-        <p>${item.price} ₽</p>
-      `;
-      div.onclick = () => {
-        currentItem = item;
-        document.getElementById("modalImg").src = item.img;
-        document.getElementById("modalTitle").innerText = item.title;
-        document.getElementById("modalPrice").innerText = `${item.price} ₽`;
-        document.getElementById("modal").style.display = "flex";
-      };
-      menuContainer.appendChild(div);
-    });
+    function renderMenu(category = "Все") {
+      const container = document.getElementById("menu");
+      container.innerHTML = "";
+      menuData.filter(item => category === "Все" || item.category === category).forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = \`
+          <img src="\${item.img}" alt="">
+          <h3>\${item.title}</h3>
+          <p>\${item.price} ₽</p>
+        \`;
+        div.onclick = () => openModal(item);
+        container.appendChild(div);
+      });
+    }
+
+    function openModal(item) {
+      currentItem = item;
+      currentQty = 1;
+      document.getElementById("modalImg").src = item.img;
+      document.getElementById("modalTitle").innerText = item.title;
+      document.getElementById("modalPrice").innerText = item.price + " ₽";
+      document.getElementById("modalQty").innerText = currentQty;
+      document.getElementById("modal").style.display = "flex";
+    }
 
     function closeModal() {
       document.getElementById("modal").style.display = "none";
     }
 
-    function addToCart() {
-      cart.push({ title: currentItem.title, price: currentItem.price + " ₽" });
-      alert(`${currentItem.title} добавлено в корзину`);
-      closeModal();
+    function adjustQty(amount) {
+      currentQty = Math.max(1, currentQty + amount);
+      document.getElementById("modalQty").innerText = currentQty;
     }
 
-    document.getElementById("sendBtn").addEventListener("click", () => {
-      if (cart.length === 0) {
-        alert("Корзина пуста!");
-        return;
-      }
+    function addToCart() {
+      cart.push({ title: currentItem.title, price: currentItem.price + " ₽", qty: currentQty });
+      closeModal();
+      alert(\`\${currentItem.title} x\${currentQty} добавлено\`);
+    }
+
+    function showCart() {
+      const list = document.getElementById("cartList");
+      list.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        const price = parseInt(item.price);
+        total += price * item.qty;
+        list.innerHTML += \`<p>• \${item.title} x\${item.qty} — \${price * item.qty} ₽</p>\`;
+      });
+      document.getElementById("cartTotal").innerText = "💰 Общая сумма: " + total + " ₽";
+      document.getElementById("cartModal").style.display = "flex";
+    }
+
+    function closeCart() {
+      document.getElementById("cartModal").style.display = "none";
+    }
+
+    function sendCart() {
       tg.sendData(JSON.stringify(cart));
-    });
+      closeCart();
+    }
+
+    function clearCart() {
+      cart.length = 0;
+      closeCart();
+      alert("Корзина очищена");
+    }
+
+    document.getElementById("viewCart").onclick = showCart;
+    function filterMenu(cat) { renderMenu(cat); }
+    renderMenu();
   </script>
 </body>
 </html>
