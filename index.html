@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Меню ресторана Чапай</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       margin: 0;
@@ -20,15 +21,6 @@
     .container {
       padding: 16px;
     }
-    .select-city {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    select {
-      font-size: 16px;
-      padding: 8px;
-    }
     .menu-items {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -40,6 +32,7 @@
       padding: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       text-align: center;
+      cursor: pointer;
     }
     .card img {
       max-width: 100%;
@@ -54,97 +47,133 @@
       color: #444;
       font-weight: bold;
     }
+    #sendBtn {
+      margin: 20px auto;
+      display: block;
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #8b0000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Модальное окно */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+    }
+    .modal img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      color: #333;
+      cursor: pointer;
+    }
+    .add-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #8b0000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <header>🍲 Ресторан «Чапай» — Фронтовое меню</header>
   <div class="container">
-    <div class="select-city">
-      <label for="city">Ваш город:&nbsp;</label>
-      <select id="city">
-        <option>Ялта</option>
-        <option>Москва</option>
-        <option>Севастополь</option>
-      </select>
-    </div>
-
     <div class="menu-items" id="menu">
-      <div class="card">
-        <img src="photos/1.jpg" alt="Кура с передовой" />
+      <!-- Пример карточки -->
+      <div class="card" data-title="Кура «с передовой»" data-price="450 ₽" data-img="photos/1.jpg">
+        <img src="photos/1.jpg" alt="" />
         <h3>Кура «с передовой»</h3>
         <p>450 ₽</p>
       </div>
-      <div class="card">
-        <img src="photos/2.jpg" alt="Похлёбка от Василия Иваныча" />
+      <div class="card" data-title="Похлёбка от Василия Иваныча" data-price="180 ₽" data-img="photos/2.jpg">
+        <img src="photos/2.jpg" alt="" />
         <h3>Похлёбка от Василия Иваныча</h3>
         <p>180 ₽</p>
       </div>
-      <div class="card">
-        <img src="photos/3.jpg" alt="Картошка по-окопному" />
-        <h3>Картошка по-окопному</h3>
-        <p>190 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/4.jpg" alt="Сало на привале" />
-        <h3>Сало «на привале»</h3>
-        <p>160 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/5.jpg" alt="Биоштекс штабной" />
-        <h3>Биоштекс «штабной»</h3>
-        <p>480 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/6.jpg" alt="Щи Дух Победы" />
-        <h3>Щи «Дух Победы»</h3>
-        <p>230 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/7.jpg" alt="Окопные соленья" />
-        <h3>Окопные соленья</h3>
-        <p>140 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/8.jpg" alt="Шпроты в дозоре" />
-        <h3>Шпроты в дозоре</h3>
-        <p>150 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/9.jpg" alt="Рёбра на броне" />
-        <h3>Рёбра «на броне»</h3>
-        <p>490 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/10.jpg" alt="Пельмени от разведки" />
-        <h3>Пельмени «от разведки»</h3>
-        <p>330 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/11.jpg" alt="Кисель комиссарский" />
-        <h3>Кисель «Комиссарский»</h3>
-        <p>120 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/12.jpg" alt="Гречневик с мёдом" />
-        <h3>Гречневик с мёдом</h3>
-        <p>140 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/13.jpg" alt="Чай Кипяток из котелка" />
-        <h3>Чай «Кипяток из котелка»</h3>
-        <p>80 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/14.jpg" alt="Компот Третий фронт" />
-        <h3>Компот «Третий фронт»</h3>
-        <p>90 ₽</p>
-      </div>
-      <div class="card">
-        <img src="photos/15.jpg" alt="Яйца по-генеральски" />
-        <h3>Яйца «по-генеральски»</h3>
-        <p>160 ₽</p>
-      </div>
+      <!-- Добавь остальные карточки аналогично -->
+    </div>
+
+    <button id="sendBtn">✅ Отправить заказ</button>
+  </div>
+
+  <!-- Модальное окно -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <img id="modalImg" src="" alt="" />
+      <h3 id="modalTitle"></h3>
+      <p id="modalPrice"></p>
+      <button class="add-btn" onclick="addToCart()">➕ Добавить в корзину</button>
     </div>
   </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const cart = [];
+    let currentItem = {};
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => {
+        currentItem = {
+          title: card.dataset.title,
+          price: card.dataset.price
+        };
+        document.getElementById('modalTitle').innerText = currentItem.title;
+        document.getElementById('modalPrice').innerText = currentItem.price;
+        document.getElementById('modalImg').src = card.dataset.img;
+        document.getElementById('modal').style.display = 'block';
+      });
+    });
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function addToCart() {
+      cart.push(currentItem);
+      alert(`${currentItem.title} добавлено в заказ`);
+      closeModal();
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', () => {
+      if (cart.length === 0) {
+        alert("Корзина пуста!");
+        return;
+      }
+      tg.sendData(JSON.stringify(cart));
+    });
+  </script>
 </body>
 </html>
