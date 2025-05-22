@@ -47,6 +47,7 @@
       color: #444;
       font-weight: bold;
     }
+
     #sendBtn {
       margin: 20px auto;
       display: block;
@@ -59,7 +60,6 @@
       cursor: pointer;
     }
 
-    /* Модальное окно */
     .modal {
       display: none;
       position: fixed;
@@ -68,31 +68,42 @@
       top: 0;
       width: 100%;
       height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
+      background-color: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
     }
+
     .modal-content {
       background-color: white;
-      margin: 10% auto;
       padding: 20px;
       width: 90%;
       max-width: 400px;
-      border-radius: 8px;
+      border-radius: 10px;
       text-align: center;
       position: relative;
     }
+
     .modal img {
       max-width: 100%;
       border-radius: 8px;
     }
+
+    .modal h3 {
+      margin: 10px 0 5px;
+    }
+
+    .modal p {
+      color: #444;
+    }
+
     .close {
       position: absolute;
       top: 10px;
       right: 15px;
-      font-size: 20px;
-      color: #333;
+      font-size: 22px;
       cursor: pointer;
     }
+
     .add-btn {
       margin-top: 15px;
       padding: 10px 20px;
@@ -108,32 +119,18 @@
 <body>
   <header>🍲 Ресторан «Чапай» — Фронтовое меню</header>
   <div class="container">
-    <div class="menu-items" id="menu">
-      <!-- Пример карточки -->
-      <div class="card" data-title="Кура «с передовой»" data-price="450 ₽" data-img="photos/1.jpg">
-        <img src="photos/1.jpg" alt="" />
-        <h3>Кура «с передовой»</h3>
-        <p>450 ₽</p>
-      </div>
-      <div class="card" data-title="Похлёбка от Василия Иваныча" data-price="180 ₽" data-img="photos/2.jpg">
-        <img src="photos/2.jpg" alt="" />
-        <h3>Похлёбка от Василия Иваныча</h3>
-        <p>180 ₽</p>
-      </div>
-      <!-- Добавь остальные карточки аналогично -->
-    </div>
-
-    <button id="sendBtn">✅ Отправить заказ</button>
+    <div class="menu-items" id="menu"></div>
+    <button id="sendBtn">✅ Оформить заказ</button>
   </div>
 
-  <!-- Модальное окно -->
+  <!-- Модалка -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
-      <img id="modalImg" src="" alt="" />
+      <img id="modalImg" src="" />
       <h3 id="modalTitle"></h3>
       <p id="modalPrice"></p>
-      <button class="add-btn" onclick="addToCart()">➕ Добавить в корзину</button>
+      <button class="add-btn" onclick="addToCart()">➕ В корзину</button>
     </div>
   </div>
 
@@ -144,30 +141,54 @@
     const cart = [];
     let currentItem = {};
 
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('click', () => {
-        currentItem = {
-          title: card.dataset.title,
-          price: card.dataset.price
-        };
-        document.getElementById('modalTitle').innerText = currentItem.title;
-        document.getElementById('modalPrice').innerText = currentItem.price;
-        document.getElementById('modalImg').src = card.dataset.img;
-        document.getElementById('modal').style.display = 'block';
-      });
+    const menuData = [
+      { title: "Кура «с передовой»", price: 450, img: "photos/1.jpg" },
+      { title: "Похлёбка от Василия Иваныча", price: 180, img: "photos/2.jpg" },
+      { title: "Картошка по-окопному", price: 190, img: "photos/3.jpg" },
+      { title: "Сало «на привале»", price: 160, img: "photos/4.jpg" },
+      { title: "Биоштекс «штабной»", price: 480, img: "photos/5.jpg" },
+      { title: "Щи «Дух Победы»", price: 230, img: "photos/6.jpg" },
+      { title: "Окопные соленья", price: 140, img: "photos/7.jpg" },
+      { title: "Шпроты в дозоре", price: 150, img: "photos/8.jpg" },
+      { title: "Рёбра «на броне»", price: 490, img: "photos/9.jpg" },
+      { title: "Пельмени «от разведки»", price: 330, img: "photos/10.jpg" },
+      { title: "Кисель «Комиссарский»", price: 120, img: "photos/11.jpg" },
+      { title: "Гречневик с мёдом", price: 140, img: "photos/12.jpg" },
+      { title: "Чай «Кипяток из котелка»", price: 80, img: "photos/13.jpg" },
+      { title: "Компот «Третий фронт»", price: 90, img: "photos/14.jpg" },
+      { title: "Яйца «по-генеральски»", price: 160, img: "photos/15.jpg" },
+    ];
+
+    const menuContainer = document.getElementById("menu");
+    menuData.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        <img src="${item.img}" alt="${item.title}">
+        <h3>${item.title}</h3>
+        <p>${item.price} ₽</p>
+      `;
+      div.onclick = () => {
+        currentItem = item;
+        document.getElementById("modalImg").src = item.img;
+        document.getElementById("modalTitle").innerText = item.title;
+        document.getElementById("modalPrice").innerText = `${item.price} ₽`;
+        document.getElementById("modal").style.display = "flex";
+      };
+      menuContainer.appendChild(div);
     });
 
     function closeModal() {
-      document.getElementById('modal').style.display = 'none';
+      document.getElementById("modal").style.display = "none";
     }
 
     function addToCart() {
-      cart.push(currentItem);
-      alert(`${currentItem.title} добавлено в заказ`);
+      cart.push({ title: currentItem.title, price: currentItem.price + " ₽" });
+      alert(`${currentItem.title} добавлено в корзину`);
       closeModal();
     }
 
-    document.getElementById('sendBtn').addEventListener('click', () => {
+    document.getElementById("sendBtn").addEventListener("click", () => {
       if (cart.length === 0) {
         alert("Корзина пуста!");
         return;
